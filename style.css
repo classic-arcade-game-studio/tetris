@@ -1,0 +1,231 @@
+/* --- BASE RESET & TYPOGRAPHY --- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* --- THEME VARIABLES --- */
+/* 1. Cyberpunk (Competitive) */
+.theme-cyberpunk {
+    --bg-color: #0a0a12;
+    --panel-bg: rgba(20, 20, 35, 0.9);
+    --text-color: #e0e0ff;
+    --accent-color: #00f3ff;
+    --accent-secondary: #ff00ea;
+    --border-color: #00f3ff;
+    --btn-bg: #1a1a2e;
+}
+
+/* 2. Vibrant (Roguelite) */
+.theme-vibrant {
+    --bg-color: #2b1055;
+    --panel-bg: rgba(255, 255, 255, 0.1);
+    --text-color: #ffffff;
+    --accent-color: #ffde00;
+    --accent-secondary: #ff4d4d;
+    --border-color: #ffffff;
+    --btn-bg: #7597de;
+}
+
+/* 3. Zen (Minimalist) */
+.theme-zen {
+    --bg-color: #f4f1ea;
+    --panel-bg: #ffffff;
+    --text-color: #2c3e50;
+    --accent-color: #88b04b;
+    --accent-secondary: #f7cac9;
+    --border-color: #d8dbe2;
+    --btn-bg: #e0e0e0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+/* --- SCREEN MANAGEMENT --- */
+.screen {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    justify-content: center;
+    align-items: center;
+}
+.screen.active {
+    display: flex;
+}
+
+/* --- MENU UI --- */
+.menu-container {
+    background: var(--panel-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.game-title {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 4px;
+    margin-bottom: 2rem;
+    color: var(--accent-color);
+    text-shadow: 0 0 10px var(--accent-color);
+}
+
+.theme-selector p {
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+    opacity: 0.7;
+}
+
+.theme-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.theme-btn {
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px solid var(--text-color);
+    color: var(--text-color);
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+}
+.theme-btn.active, .theme-btn:hover {
+    background: var(--accent-color);
+    color: var(--bg-color);
+    border-color: var(--accent-color);
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.menu-btn {
+    padding: 15px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: var(--btn-bg);
+    color: var(--text-color);
+    transition: transform 0.1s, background 0.2s;
+}
+.menu-btn:hover {
+    transform: translateY(-2px);
+}
+.menu-btn.primary {
+    background: var(--accent-color);
+    color: var(--bg-color);
+}
+
+/* --- SETTINGS UI --- */
+.settings-list {
+    margin: 1.5rem 0;
+    text-align: left;
+}
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.setting-row select, .setting-row input {
+    padding: 5px;
+    background: var(--btn-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+/* --- GAME UI --- */
+.game-ui {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    justify-content: center;
+    height: 100%;
+    padding: 20px;
+}
+
+.side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.ui-box {
+    background: var(--panel-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+}
+
+.ui-box h3 {
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    color: var(--accent-color);
+}
+
+canvas {
+    background: rgba(0,0,0,0.2);
+    border-radius: 4px;
+    display: block;
+    margin: 0 auto;
+}
+
+#canvas-board {
+    border: 3px solid var(--accent-color);
+    box-shadow: 0 0 20px var(--accent-color);
+}
+
+/* Power Meter */
+.power-bar {
+    width: 100%;
+    height: 20px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+.power-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-secondary), var(--accent-color));
+    transition: width 0.3s ease;
+}
+
+/* --- RESPONSIVE / MOBILE --- */
+@media (max-width: 600px) {
+    .game-title { font-size: 2rem; }
+    .game-ui { flex-direction: column; align-items: center; gap: 10px; padding: 10px; }
+    .side-panel { flex-direction: row; width: 100%; justify-content: space-around; }
+    #canvas-board { width: 250px; height: 500px; }
+}
