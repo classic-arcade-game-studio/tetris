@@ -152,6 +152,62 @@ function update(time = 0) {
     requestAnimationFrame(update);
 }
 
+// --- MOVEMENT FUNCTIONS ---
+
+function move(dir) {
+    currentPiece.x += dir;
+    // If we hit a wall or another block, move back
+    if (collide(board, currentPiece)) {
+        currentPiece.x -= dir;
+    }
+}
+
+function rotate() {
+    // Save the original position and shape just in case
+    const pos = currentPiece.x;
+    let offset = 1;
+    const originalShape = currentPiece.shape;
+    
+    // Rotate the matrix (Transpose and reverse)
+    currentPiece.shape = currentPiece.shape[0].map((val, index) =>
+        currentPiece.shape.map(row => row[index]).reverse()
+    );
+
+    // "Wall Kick" logic: If rotation hits a wall, nudge it left/right until it fits
+    while (collide(board, currentPiece)) {
+        currentPiece.x += offset;
+        offset = -(offset + (offset > 0 ? 1 : -1));
+        // If we nudged it too far, revert the rotation
+        if (offset > currentPiece.shape[0].length) {
+            currentPiece.shape = originalShape;
+            currentPiece.x = pos;
+            return;
+        }
+    }
+}
+
+function playerSoftDrop() {
+    currentPiece.y++;
+    if (collide(board, currentPiece)) {
+        currentPiece.y--;
+        merge(board, currentPiece);
+        spawnPiece();
+    }
+    dropCounter = 0; // Reset the auto-drop timer
+}
+
+function playerHardDrop() {
+    // Drop until collision
+    while (!collide(board, currentPiece)) {
+        currentPiece.y++;
+    }
+    // Move back up one step and lock
+    currentPiece.y--;
+    merge(board, currentPiece);
+    spawnPiece();
+    dropCounter = 0;
+}
+
 // --- PUBLIC START FUNCTION ---
 // This allows main.js to start the game when the user clicks "Start Game"
 window.startGameEngine = function() {
