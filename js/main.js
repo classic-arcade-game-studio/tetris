@@ -54,8 +54,13 @@ themeButtons.forEach(btn => {
 
 // Menu Navigation
 btnStart.addEventListener('click', () => {
-    console.log("Starting Game... (Engine will be added in Step 2)");
     switchScreen('game');
+    // Start the engine
+    if (typeof window.startGameEngine === 'function') {
+        window.startGameEngine();
+    } else {
+        console.log("Engine not found! Check index.html script tags.");
+    }
 });
 
 btnSettings.addEventListener('click', () => {
