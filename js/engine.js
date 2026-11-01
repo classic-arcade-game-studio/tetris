@@ -323,21 +323,21 @@ function drawSidePanels() {
         drawMatrix(holdPiece.shape, { x: 1, y: 1 }, ctxHold, holdPiece.color);
     }
 
-    // Check if mobile (600px or less)
-    const isMobile = window.innerWidth <= 600;
-    
     // Reset transform before drawing Next queue
     ctxNext.setTransform(1, 0, 0, 1, 0, 0);
     ctxNext.clearRect(0, 0, canvasNext.width, canvasNext.height);
 
+    // Check if mobile (650px or less)
+    const isMobile = window.innerWidth <= 650;
+    
     if (isMobile) {
-        // Draw Horizontally with smaller blocks
-        ctxNext.scale(12, 12); 
+        // Draw Horizontally for mobile
+        ctxNext.scale(8, 8); 
         nextQueue.forEach((id, index) => {
-            drawMatrix(SHAPES[id], { x: 1 + (index * 3.5), y: 1 }, ctxNext, COLORS[id]);
+            drawMatrix(SHAPES[id], { x: 1 + (index * 4), y: 1 }, ctxNext, COLORS[id]);
         });
     } else {
-        // Draw Vertically (Standard)
+        // Draw Vertically (Standard Desktop)
         ctxNext.scale(20, 20);
         nextQueue.forEach((id, index) => {
             drawMatrix(SHAPES[id], { x: 1, y: 1 + (index * 4) }, ctxNext, COLORS[id]);

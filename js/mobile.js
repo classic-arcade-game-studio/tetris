@@ -5,12 +5,16 @@ function updateDpadVisibility() {
     const dpad = document.getElementById('mobile-dpad');
     const controlType = document.getElementById('toggle-mobile-controls')?.value;
     
+    console.log("Updating D-Pad. Control Type:", controlType); // Debug log
+    
     if (!dpad) return;
 
     if (controlType === 'dpad') {
         dpad.classList.remove('hidden');
+        console.log("D-Pad should be visible now.");
     } else {
         dpad.classList.add('hidden');
+        console.log("D-Pad hidden.");
     }
 }
 
