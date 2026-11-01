@@ -34,44 +34,37 @@ let isGameRunning = false;
 let score = 0;
 let linesCleared = 0;
 let level = 1;
-let animationState = {
-    active: false,
-    lines: [],
-    points: 0,
-    timer: 0
-};
+let animationState = { active: false, lines: [], points: 0, timer: 0 };
 
 // --- POWER METER STATE ---
-let powerMeter = 0; // 0 to 100
+let powerMeter = 0;
 let isPowerMode = false;
 
-// --- CANVAS SETUP ---
+// --- DESKTOP CANVAS SETUP ---
 const canvas = document.getElementById('canvas-board');
-const ctx = canvas.getContext('2d');
-ctx.scale(BLOCK_SIZE, BLOCK_SIZE);
+const ctx = canvas ? canvas.getContext('2d') : null;
+if (ctx) ctx.scale(BLOCK_SIZE, BLOCK_SIZE);
 
 const canvasHold = document.getElementById('canvas-hold');
-const ctxHold = canvasHold.getContext('2d');
-ctxHold.scale(20, 20);
+const ctxHold = canvasHold ? canvasHold.getContext('2d') : null;
+if (ctxHold) ctxHold.scale(20, 20);
 
 const canvasNext = document.getElementById('canvas-next');
-const ctxNext = canvasNext.getContext('2d');
-ctxNext.scale(20, 20);
+const ctxNext = canvasNext ? canvasNext.getContext('2d') : null;
+if (ctxNext) ctxNext.scale(20, 20);
 
 // --- MOBILE CANVAS SETUP ---
-// 1. ADD THESE TWO LINES FOR THE MAIN MOBILE BOARD:
 const canvasMobile = document.getElementById('canvas-board-mobile');
 const ctxMobile = canvasMobile ? canvasMobile.getContext('2d') : null;
-if (ctxMobile) ctxMobile.scale(24, 24); // 240px width / 10 cols = 24
+if (ctxMobile) ctxMobile.scale(24, 24); // 240px / 10 cols = 24
 
-// 2. KEEP YOUR EXISTING CODE BELOW:
 const canvasNextMobile = document.getElementById('canvas-next-mobile');
 const ctxNextMobile = canvasNextMobile ? canvasNextMobile.getContext('2d') : null;
-if (ctxNextMobile) ctxNextMobile.scale(10, 10); 
+if (ctxNextMobile) ctxNextMobile.scale(10, 10);
 
 const canvasHoldMobile = document.getElementById('canvas-hold-mobile');
 const ctxHoldMobile = canvasHoldMobile ? canvasHoldMobile.getContext('2d') : null;
-if (ctxHoldMobile) ctxHoldMobile.scale(15, 15); 
+if (ctxHoldMobile) ctxHoldMobile.scale(15, 15);
 
 // --- FUNCTIONS ---
 
@@ -120,8 +113,7 @@ function collide(board, piece) {
     const o = piece;
     for (let y = 0; y < m.length; ++y) {
         for (let x = 0; x < m[y].length; ++x) {
-            if (m[y][x] !== 0 &&
-               (board[y + o.y] && board[y + o.y][x + o.x]) !== 0) {
+            if (m[y][x] !== 0 && (board[y + o.y] && board[y + o.y][x + o.x]) !== 0) {
                 return true;
             }
         }
@@ -145,9 +137,7 @@ function clearLines() {
 
     outer: for (let y = ROWS - 1; y >= 0; --y) {
         for (let x = 0; x < COLS; ++x) {
-            if (board[y][x] === 0) {
-                continue outer;
-            }
+            if (board[y][x] === 0) continue outer;
         }
         clearedRows.push(y);
         lines++;
@@ -155,7 +145,6 @@ function clearLines() {
 
     if (lines > 0) {
         triggerLineClearAnimation(lines, clearedRows);
-        
         const newBoard = board.filter((row, index) => !clearedRows.includes(index));
         while (newBoard.length < ROWS) {
             newBoard.unshift(Array(COLS).fill(0));
@@ -169,26 +158,19 @@ function triggerLineClearAnimation(lines, clearedRows) {
     score += points;
     linesCleared += lines;
     
-    // --- POWER METER FILL LOGIC ---
     let fillAmount = [0, 10, 20, 30, 50][lines];
     powerMeter += fillAmount;
     
     if (powerMeter >= 100) {
         powerMeter = 100;
         isPowerMode = true;
-        level = 1; // Reset to Zero Speed-Up
+        level = 1;
     } else {
         level = Math.floor(linesCleared / 10) + 1;
     }
     dropInterval = Math.max(100, 1000 - (level - 1) * 100);
 
-    animationState = {
-        active: true,
-        lines: clearedRows,
-        points: points,
-        timer: 0,
-        intensity: lines
-    };
+    animationState = { active: true, lines: clearedRows, points: points, timer: 0, intensity: lines };
 
     if (typeof window.updateScoreUI === 'function') {
         window.updateScoreUI(score, level, lines);
@@ -200,9 +182,7 @@ function triggerLineClearAnimation(lines, clearedRows) {
 function move(dir) {
     if (animationState.active || !isGameRunning) return;
     currentPiece.x += dir;
-    if (collide(board, currentPiece)) {
-        currentPiece.x -= dir;
-    }
+    if (collide(board, currentPiece)) currentPiece.x -= dir;
 }
 
 function rotate() {
@@ -240,15 +220,10 @@ function playerSoftDrop() {
 
 function playerHardDrop() {
     if (animationState.active || !isGameRunning) return;
-    while (!collide(board, currentPiece)) {
-        currentPiece.y++;
-    }
+    while (!collide(board, currentPiece)) currentPiece.y++;
     currentPiece.y--;
     merge(board, currentPiece);
-    
-    // Play Hard Drop Sound
     if (typeof window.playHardDrop === 'function') window.playHardDrop();
-    
     clearLines();
     spawnPiece();
     dropCounter = 0;
@@ -266,9 +241,7 @@ function hold() {
         spawnPiece();
     }
 
-    // Play Hold Sound
     if (typeof window.playHold === 'function') window.playHold();
-
     canHold = false;
     drawSidePanels();
 }
@@ -282,8 +255,6 @@ function drawMatrix(matrix, offset, context, colorOverride = null, alpha = 1.0) 
             if (value !== 0) {
                 context.fillStyle = colorOverride || (typeof value === 'string' ? value : COLORS[value]);
                 context.fillRect(x + offset.x, y + offset.y, 1, 1);
-                
-                // White Borders (Thin)
                 context.strokeStyle = '#ffffff'; 
                 context.lineWidth = 0.04; 
                 context.strokeRect(x + offset.x, y + offset.y, 1, 1);
@@ -294,7 +265,7 @@ function drawMatrix(matrix, offset, context, colorOverride = null, alpha = 1.0) 
 }
 
 function drawGhost(context = ctx) {
-    if (!currentPiece || animationState.active) return;
+    if (!currentPiece || animationState.active || !context) return;
     
     let ghostY = currentPiece.y;
     while (!collideAt(board, currentPiece.shape, currentPiece.x, ghostY + 1)) {
@@ -313,15 +284,13 @@ function drawGhost(context = ctx) {
             }
         });
     });
-
     context.restore();
 }
 
 function collideAt(board, shape, x, y) {
     for (let r = 0; r < shape.length; ++r) {
         for (let c = 0; c < shape[r].length; ++c) {
-            if (shape[r][c] !== 0 &&
-               (board[y + r] && board[y + r][x + c]) !== 0) {
+            if (shape[r][c] !== 0 && (board[y + r] && board[y + r][x + c]) !== 0) {
                 return true;
             }
         }
@@ -330,9 +299,11 @@ function collideAt(board, shape, x, y) {
 }
 
 function drawSidePanels() {
-    // Desktop Canvases
+    // Desktop
     if (ctxHold) {
+        ctxHold.setTransform(1, 0, 0, 1, 0, 0);
         ctxHold.clearRect(0, 0, canvasHold.width, canvasHold.height);
+        ctxHold.scale(20, 20);
         if (holdPiece) drawMatrix(holdPiece.shape, { x: 1, y: 1 }, ctxHold, holdPiece.color);
     }
     if (ctxNext) {
@@ -344,7 +315,7 @@ function drawSidePanels() {
         });
     }
 
-    // Mobile Canvases
+    // Mobile
     if (ctxHoldMobile) {
         ctxHoldMobile.setTransform(1, 0, 0, 1, 0, 0);
         ctxHoldMobile.clearRect(0, 0, canvasHoldMobile.width, canvasHoldMobile.height);
@@ -362,20 +333,18 @@ function drawSidePanels() {
 }
 
 function draw() {
-    // 1. Determine if we are on mobile
+    // SAFELY determine active canvas (falls back to desktop if mobile is missing)
     const isMobile = window.innerWidth <= 650;
-    const activeCanvas = isMobile ? canvasMobile : canvas;
-    const activeCtx = isMobile ? ctxMobile : ctx;
+    const activeCanvas = (isMobile && canvasMobile) ? canvasMobile : canvas;
+    const activeCtx = (isMobile && ctxMobile) ? ctxMobile : ctx;
 
-    if (!activeCtx) return;
+    if (!activeCtx || !activeCanvas) return;
 
-    // 2. Clear the active canvas
     activeCtx.save();
     activeCtx.setTransform(1, 0, 0, 1, 0, 0);
     activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
     activeCtx.restore();
 
-    // 3. Draw to the active canvas
     drawMatrix(board, { x: 0, y: 0 }, activeCtx);
     drawGhost(activeCtx);
     
@@ -383,7 +352,6 @@ function draw() {
         drawMatrix(currentPiece.shape, { x: currentPiece.x, y: currentPiece.y }, activeCtx, currentPiece.color);
     }
 
-    // 4. Flash effect for cleared lines
     if (animationState.active) {
         animationState.lines.forEach(y => {
             activeCtx.globalAlpha = 0.8;
@@ -406,14 +374,13 @@ function update(time = 0) {
             animationState.active = false;
         }
     } else {
-        // --- POWER METER DRAIN & SPEED LOGIC ---
         if (isPowerMode) {
-            powerMeter -= deltaTime / 1000; // Drain 1% per second
+            powerMeter -= deltaTime / 1000;
             if (powerMeter <= 0) {
                 powerMeter = 0;
                 isPowerMode = false;
             }
-            dropInterval = 1000; // Force Zero Speed-Up (Level 1)
+            dropInterval = 1000;
         } else {
             dropInterval = Math.max(100, 1000 - (level - 1) * 100);
         }
@@ -424,7 +391,6 @@ function update(time = 0) {
         }
     }
 
-    // Update Power Meter UI
     if (typeof window.updatePowerMeterUI === 'function') {
         window.updatePowerMeterUI(powerMeter, isPowerMode);
     }
@@ -433,8 +399,6 @@ function update(time = 0) {
     requestAnimationFrame(update);
 }
 
-// --- GAME OVER ---
-
 function triggerGameOver() {
     isGameRunning = false;
     if (typeof window.showGameOverScreen === 'function') {
@@ -442,7 +406,6 @@ function triggerGameOver() {
     }
 }
 
-// --- PUBLIC START FUNCTION ---
 window.startGameEngine = function() {
     createBoard();
     for(let i=0; i<4; i++) nextQueue.push(getNextPieceId());
@@ -460,7 +423,6 @@ window.startGameEngine = function() {
     update();
 };
 
-// Expose functions for mobile controls
 window.mobileMove = move;
 window.mobileRotate = rotate;
 window.mobileSoftDrop = playerSoftDrop;
