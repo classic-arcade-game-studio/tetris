@@ -315,7 +315,7 @@ function drawSidePanels() {
         });
     }
 
-    // Mobile
+    // Mobile Canvases
     if (ctxHoldMobile) {
         ctxHoldMobile.setTransform(1, 0, 0, 1, 0, 0);
         ctxHoldMobile.clearRect(0, 0, canvasHoldMobile.width, canvasHoldMobile.height);
@@ -326,8 +326,15 @@ function drawSidePanels() {
         ctxNextMobile.setTransform(1, 0, 0, 1, 0, 0);
         ctxNextMobile.clearRect(0, 0, canvasNextMobile.width, canvasNextMobile.height);
         ctxNextMobile.scale(10, 10);
+        
+        // --- CENTERING LOGIC ---
+        // Canvas is 28 units wide (280px / 10 scale).
+        // We have 4 pieces, each spaced 4 units apart. Total width = 16 units.
+        // Offset = (28 - 16) / 2 = 6 units.
+        const startX = 6; 
+        
         nextQueue.forEach((id, index) => {
-            drawMatrix(SHAPES[id], { x: 1 + (index * 4), y: 1 }, ctxNextMobile, COLORS[id]);
+            drawMatrix(SHAPES[id], { x: startX + (index * 4), y: 1 }, ctxNextMobile, COLORS[id]);
         });
     }
 }

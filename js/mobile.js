@@ -2,19 +2,19 @@
 
 // 1. D-PAD VISIBILITY TOGGLE
 function updateDpadVisibility() {
-    const dpad = document.getElementById('mobile-dpad');
     const controlType = document.getElementById('toggle-mobile-controls')?.value;
+    const bottomRow = document.querySelector('.mobile-bottom-row');
     
-    console.log("Updating D-Pad. Control Type:", controlType); // Debug log
-    
-    if (!dpad) return;
+    if (!bottomRow) return;
 
-    if (controlType === 'dpad') {
-        dpad.classList.remove('hidden');
-        console.log("D-Pad should be visible now.");
+    if (controlType === 'swipe') {
+        // Add class to hide D-PAD groups via CSS
+        bottomRow.classList.add('swipe-mode');
+        console.log("Swipe Mode: D-PAD hidden.");
     } else {
-        dpad.classList.add('hidden');
-        console.log("D-Pad hidden.");
+        // Remove class to show D-PAD groups
+        bottomRow.classList.remove('swipe-mode');
+        console.log("D-Pad Mode: D-PAD visible.");
     }
 }
 
