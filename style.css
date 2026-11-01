@@ -481,3 +481,156 @@ canvas {
 /* ========================================== */
 /* END OF NEW CODE                            */
 /* ========================================== */
+
+/* ========================================== */
+/* MOBILE LAYOUT & D-PAD STYLES               */
+/* ========================================== */
+
+/* D-Pad Container */
+.mobile-dpad {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    gap: 20px;
+}
+
+.mobile-dpad.hidden {
+    display: none !important;
+}
+
+.dpad-directional {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.dpad-row {
+    display: flex;
+    gap: 5px;
+}
+
+.dpad-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+/* D-Pad Buttons */
+.dpad-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    background: var(--btn-bg);
+    color: var(--text-color);
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    touch-action: none; /* Prevents browser zooming/scrolling on tap */
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.05s, background 0.1s;
+}
+
+.dpad-btn:active {
+    transform: scale(0.9);
+    background: var(--accent-color);
+    color: var(--bg-color);
+}
+
+.dpad-btn.action-btn {
+    width: 70px;
+    height: 70px;
+    font-size: 1.8rem;
+    border-color: var(--accent-secondary);
+}
+
+/* Mobile Specific Layout Overrides (Max width 650px) */
+@media (max-width: 650px) {
+    body {
+        overflow: hidden; /* Prevents any scrolling */
+    }
+
+    .game-ui {
+        flex-direction: column;
+        height: 100vh;
+        width: 100vw;
+        padding: 5px;
+        gap: 5px;
+        justify-content: space-between;
+    }
+
+    /* 1. Next Queue at Top */
+    .top-panel {
+        order: 1;
+        width: 100%;
+    }
+    
+    .top-panel .ui-box {
+        padding: 5px;
+        width: 100%;
+    }
+
+    #canvas-next {
+        width: 280px !important;
+        height: 60px !important;
+    }
+
+    /* 2. Game Board in Middle (Scaled Down) */
+    .center-panel {
+        order: 2;
+        flex-grow: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #canvas-board {
+        width: 240px !important;  /* Scaled down from 300px */
+        height: 480px !important; /* Scaled down from 600px */
+        border-width: 2px;
+    }
+
+    /* 3. D-Pad below Board */
+    .mobile-dpad {
+        order: 3;
+        padding: 5px 10px;
+    }
+
+    .dpad-btn {
+        width: 55px;
+        height: 55px;
+        font-size: 1.3rem;
+    }
+    
+    .dpad-btn.action-btn {
+        width: 65px;
+        height: 65px;
+    }
+
+    /* 4. Hold & Power side-by-side at Bottom */
+    .bottom-panel {
+        order: 4;
+        flex-direction: row !important;
+        width: 100%;
+        justify-content: space-around;
+        padding-bottom: 10px;
+    }
+
+    .bottom-panel .ui-box {
+        width: 45%;
+        padding: 5px;
+    }
+
+    #canvas-hold {
+        width: 80px !important;
+        height: 80px !important;
+    }
+}

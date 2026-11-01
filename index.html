@@ -84,21 +84,42 @@
     <!-- GAME SCREEN -->
     <div id="screen-game" class="screen">
         <div class="game-ui">
-            <div class="side-panel left">
+            
+            <!-- 1. NEXT QUEUE (Top on mobile) -->
+            <div class="side-panel top-panel">
                 <div class="ui-box">
-                    <h3>HOLD</h3>
-                    <canvas id="canvas-hold" width="100" height="100"></canvas>
+                    <h3>NEXT</h3>
+                    <!-- Wider and shorter canvas for horizontal mobile layout -->
+                    <canvas id="canvas-next" width="300" height="60"></canvas>
                 </div>
             </div>
             
+            <!-- 2. GAME BOARD (Middle) -->
             <div class="center-panel">
                 <canvas id="canvas-board" width="300" height="600"></canvas>
             </div>
 
-            <div class="side-panel right">
+            <!-- 3. ON-SCREEN D-PAD (Between Board and Bottom Stats) -->
+            <div id="mobile-dpad" class="mobile-dpad hidden">
+                <div class="dpad-directional">
+                    <button class="dpad-btn" id="btn-dpad-up" aria-label="Rotate">↻</button>
+                    <div class="dpad-row">
+                        <button class="dpad-btn" id="btn-dpad-left" aria-label="Left">◀</button>
+                        <button class="dpad-btn" id="btn-dpad-right" aria-label="Right">▶</button>
+                    </div>
+                    <button class="dpad-btn" id="btn-dpad-down" aria-label="Soft Drop">▼</button
+                ></div>
+                <div class="dpad-actions">
+                    <button class="dpad-btn action-btn" id="btn-dpad-hold" aria-label="Hold">⇄</button>
+                    <button class="dpad-btn action-btn" id="btn-dpad-harddrop" aria-label="Hard Drop">⤓</button>
+                </div>
+            </div>
+
+            <!-- 4. HOLD & POWER (Bottom, side-by-side on mobile) -->
+            <div class="side-panel bottom-panel">
                 <div class="ui-box">
-                    <h3>NEXT</h3>
-                    <canvas id="canvas-next" width="100" height="300"></canvas>
+                    <h3>HOLD</h3>
+                    <canvas id="canvas-hold" width="100" height="100"></canvas>
                 </div>
                 <div class="ui-box" id="power-meter-container">
                     <h3>POWER</h3>
@@ -107,6 +128,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 

@@ -1,4 +1,63 @@
-// --- MOBILE SWIPE CONTROLS ---
+// --- MOBILE CONTROLS MANAGER ---
+
+// 1. D-PAD VISIBILITY TOGGLE
+function updateDpadVisibility() {
+    const dpad = document.getElementById('mobile-dpad');
+    const controlType = document.getElementById('toggle-mobile-controls')?.value;
+    
+    if (!dpad) return;
+
+    if (controlType === 'dpad') {
+        dpad.classList.remove('hidden');
+    } else {
+        dpad.classList.add('hidden');
+    }
+}
+
+// Call this when the page loads and whenever settings change
+document.addEventListener('DOMContentLoaded', () => {
+    updateDpadVisibility();
+    
+    // Listen for setting changes to toggle D-Pad
+    const mobileControlSelect = document.getElementById('toggle-mobile-controls');
+    if (mobileControlSelect) {
+        mobileControlSelect.addEventListener('change', updateDpadVisibility);
+    }
+});
+
+
+// 2. D-PAD BUTTON EVENT LISTENERS
+// We use both touch and mouse events so it can be tested on desktop
+const dpadButtons = [
+    { id: 'btn-dpad-up', action: 'mobileRotate' },
+    { id: 'btn-dpad-left', action: 'mobileMove', param: -1 },
+    { id: 'btn-dpad-right', action: 'mobileMove', param: 1 },
+    { id: 'btn-dpad-down', action: 'mobileSoftDrop' },
+    { id: 'btn-dpad-hold', action: 'mobileHold' },
+    { id: 'btn-dpad-harddrop', action: 'mobileHardDrop' }
+];
+
+dpadButtons.forEach(btnConfig => {
+    const btn = document.getElementById(btnConfig.id);
+    if (!btn) return;
+
+    const triggerAction = (e) => {
+        e.preventDefault(); // Prevent zoom/scroll
+        if (typeof window[btnConfig.action] === 'function') {
+            if (btnConfig.param !== undefined) {
+                window[btnConfig.action](btnConfig.param);
+            } else {
+                window[btnConfig.action]();
+            }
+        }
+    };
+
+    btn.addEventListener('touchstart', triggerAction, { passive: false });
+    btn.addEventListener('mousedown', triggerAction);
+});
+
+
+// 3. SWIPE & LONG PRESS GESTURES (Existing Logic)
 let touchStartX = 0;
 let touchStartY = 0;
 let touchStartTime = 0;
@@ -10,11 +69,8 @@ const TAP_DURATION = 200; // ms
 const SWIPE_THRESHOLD = 30; // px
 
 document.addEventListener('touchstart', (e) => {
-    // Only run if swipe controls are enabled in settings
     const controlType = document.getElementById('toggle-mobile-controls')?.value;
     if (controlType !== 'swipe') return;
-
-    // Only run if the game screen is active
     if (!document.getElementById('screen-game').classList.contains('active')) return;
 
     touchStartX = e.touches[0].clientX;
@@ -22,7 +78,6 @@ document.addEventListener('touchstart', (e) => {
     touchStartTime = Date.now();
     isLongPress = false;
 
-    // Start the long press timer
     longPressTimer = setTimeout(() => {
         isLongPress = true;
         if (typeof window.mobileHold === 'function') window.mobileHold();
@@ -35,10 +90,8 @@ document.addEventListener('touchmove', (e) => {
     if (controlType !== 'swipe') return;
     if (!document.getElementById('screen-game').classList.contains('active')) return;
 
-    // Prevent the browser from scrolling while playing
     e.preventDefault();
 
-    // If the finger moves too much, cancel the long press
     const currentX = e.touches[0].clientX;
     const currentY = e.touches[0].clientY;
     const deltaX = Math.abs(currentX - touchStartX);
@@ -55,8 +108,6 @@ document.addEventListener('touchend', (e) => {
     if (!document.getElementById('screen-game').classList.contains('active')) return;
 
     clearTimeout(longPressTimer);
-
-    // If it was a long press, we already handled it in touchstart
     if (isLongPress) return; 
 
     const touchEndX = e.changedTouches[0].clientX;
@@ -68,31 +119,26 @@ document.addEventListener('touchend', (e) => {
     const absDeltaX = Math.abs(deltaX);
     const absDeltaY = Math.abs(deltaY);
 
-    // Quick Tap = Hard Drop
     if (timeElapsed < TAP_DURATION && absDeltaX < SWIPE_THRESHOLD && absDeltaY < SWIPE_THRESHOLD) {
         if (typeof window.mobileHardDrop === 'function') window.mobileHardDrop();
         return;
     }
 
-    // Swipe logic
     if (absDeltaX > absDeltaY) {
-        // Horizontal Swipe
         if (deltaX > SWIPE_THRESHOLD) {
-            if (typeof window.mobileMove === 'function') window.mobileMove(1); // Right
+            if (typeof window.mobileMove === 'function') window.mobileMove(1);
         } else if (deltaX < -SWIPE_THRESHOLD) {
-            if (typeof window.mobileMove === 'function') window.mobileMove(-1); // Left
+            if (typeof window.mobileMove === 'function') window.mobileMove(-1);
         }
     } else {
-        // Vertical Swipe
         if (deltaY > SWIPE_THRESHOLD) {
-            if (typeof window.mobileSoftDrop === 'function') window.mobileSoftDrop(); // Down
+            if (typeof window.mobileSoftDrop === 'function') window.mobileSoftDrop();
         } else if (deltaY < -SWIPE_THRESHOLD) {
-            if (typeof window.mobileRotate === 'function') window.mobileRotate(); // Up
+            if (typeof window.mobileRotate === 'function') window.mobileRotate();
         }
     }
 });
 
-// Visual cue for Hold
 function showHoldCue() {
     const cue = document.createElement('div');
     cue.className = 'mobile-hold-cue';
