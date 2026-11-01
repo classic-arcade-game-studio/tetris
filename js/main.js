@@ -28,17 +28,22 @@ window.updateScoreUI = function(score, level, lines) {
 
 window.updatePowerMeterUI = function(percent, isPowerMode) {
     const fill = document.getElementById('power-fill');
-    if (!fill) return;
+    const fillMobile = document.getElementById('power-fill-mobile');
     
-    fill.style.width = percent + '%';
-    
-    if (isPowerMode) {
-        fill.className = 'power-fill power-flashing';
-    } else if (percent >= 50) {
-        fill.className = 'power-fill power-green';
-    } else {
-        fill.className = 'power-fill power-red';
-    }
+    const updateBar = (bar) => {
+        if (!bar) return;
+        bar.style.width = percent + '%';
+        if (isPowerMode) {
+            bar.className = 'power-fill power-flashing';
+        } else if (percent >= 50) {
+            bar.className = 'power-fill power-green';
+        } else {
+            bar.className = 'power-fill power-red';
+        }
+    };
+
+    updateBar(fill);
+    updateBar(fillMobile);
 };
 
 // --- STATE MANAGEMENT ---

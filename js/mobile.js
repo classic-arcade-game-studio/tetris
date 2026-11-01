@@ -33,12 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // 2. D-PAD BUTTON EVENT LISTENERS
 // We use both touch and mouse events so it can be tested on desktop
 const dpadButtons = [
-    { id: 'btn-dpad-up', action: 'mobileRotate' },
-    { id: 'btn-dpad-left', action: 'mobileMove', param: -1 },
-    { id: 'btn-dpad-right', action: 'mobileMove', param: 1 },
-    { id: 'btn-dpad-down', action: 'mobileSoftDrop' },
-    { id: 'btn-dpad-hold', action: 'mobileHold' },
-    { id: 'btn-dpad-harddrop', action: 'mobileHardDrop' }
+    { id: 'btn-m-up', action: 'mobileRotate' },
+    { id: 'btn-m-left', action: 'mobileMove', param: -1 },
+    { id: 'btn-m-right', action: 'mobileMove', param: 1 },
+    { id: 'btn-m-down', action: 'mobileSoftDrop' },
+    { id: 'btn-m-hold', action: 'mobileHold' },
+    { id: 'btn-m-harddrop', action: 'mobileHardDrop' }
 ];
 
 dpadButtons.forEach(btnConfig => {

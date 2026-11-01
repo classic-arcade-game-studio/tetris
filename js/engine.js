@@ -58,6 +58,15 @@ const canvasNext = document.getElementById('canvas-next');
 const ctxNext = canvasNext.getContext('2d');
 ctxNext.scale(20, 20);
 
+// --- MOBILE CANVAS SETUP ---
+const canvasNextMobile = document.getElementById('canvas-next-mobile');
+const ctxNextMobile = canvasNextMobile ? canvasNextMobile.getContext('2d') : null;
+if (ctxNextMobile) ctxNextMobile.scale(10, 10); // Scale for 280x60 canvas
+
+const canvasHoldMobile = document.getElementById('canvas-hold-mobile');
+const ctxHoldMobile = canvasHoldMobile ? canvasHoldMobile.getContext('2d') : null;
+if (ctxHoldMobile) ctxHoldMobile.scale(15, 15); // Scale for 80x80 canvas
+
 // --- FUNCTIONS ---
 
 function createBoard() {
@@ -316,31 +325,33 @@ function collideAt(board, shape, x, y) {
 }
 
 function drawSidePanels() {
-    ctxHold.clearRect(0, 0, canvasHold.width, canvasHold.height);
-    ctxNext.clearRect(0, 0, canvasNext.width, canvasNext.height);
-
-    if (holdPiece) {
-        drawMatrix(holdPiece.shape, { x: 1, y: 1 }, ctxHold, holdPiece.color);
+    // Desktop Canvases
+    if (ctxHold) {
+        ctxHold.clearRect(0, 0, canvasHold.width, canvasHold.height);
+        if (holdPiece) drawMatrix(holdPiece.shape, { x: 1, y: 1 }, ctxHold, holdPiece.color);
     }
-
-    // Reset transform before drawing Next queue
-    ctxNext.setTransform(1, 0, 0, 1, 0, 0);
-    ctxNext.clearRect(0, 0, canvasNext.width, canvasNext.height);
-
-    // Check if mobile (650px or less)
-    const isMobile = window.innerWidth <= 650;
-    
-    if (isMobile) {
-        // Draw Horizontally for mobile
-        ctxNext.scale(8, 8); 
-        nextQueue.forEach((id, index) => {
-            drawMatrix(SHAPES[id], { x: 1 + (index * 4), y: 1 }, ctxNext, COLORS[id]);
-        });
-    } else {
-        // Draw Vertically (Standard Desktop)
+    if (ctxNext) {
+        ctxNext.setTransform(1, 0, 0, 1, 0, 0);
+        ctxNext.clearRect(0, 0, canvasNext.width, canvasNext.height);
         ctxNext.scale(20, 20);
         nextQueue.forEach((id, index) => {
             drawMatrix(SHAPES[id], { x: 1, y: 1 + (index * 4) }, ctxNext, COLORS[id]);
+        });
+    }
+
+    // Mobile Canvases
+    if (ctxHoldMobile) {
+        ctxHoldMobile.setTransform(1, 0, 0, 1, 0, 0);
+        ctxHoldMobile.clearRect(0, 0, canvasHoldMobile.width, canvasHoldMobile.height);
+        ctxHoldMobile.scale(15, 15);
+        if (holdPiece) drawMatrix(holdPiece.shape, { x: 1, y: 1 }, ctxHoldMobile, holdPiece.color);
+    }
+    if (ctxNextMobile) {
+        ctxNextMobile.setTransform(1, 0, 0, 1, 0, 0);
+        ctxNextMobile.clearRect(0, 0, canvasNextMobile.width, canvasNextMobile.height);
+        ctxNextMobile.scale(10, 10);
+        nextQueue.forEach((id, index) => {
+            drawMatrix(SHAPES[id], { x: 1 + (index * 4), y: 1 }, ctxNextMobile, COLORS[id]);
         });
     }
 }

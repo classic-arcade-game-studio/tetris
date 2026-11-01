@@ -553,12 +553,17 @@ canvas {
 }
 
 /* Mobile Specific Layout Overrides (Max width 650px) */
-@media (max-width: 650px) {
-    body {
-        overflow: hidden; /* Prevents any scrolling */
-    }
+/* Hide mobile layout on desktop */
+.mobile-game-ui { display: none; }
 
-    .game-ui {
+/* Mobile Specific Layout (Max width 650px) */
+@media (max-width: 650px) {
+    body { overflow: hidden; }
+
+    /* Hide Desktop UI, Show Mobile UI */
+    .game-ui { display: none !important; }
+    .mobile-game-ui {
+        display: flex !important;
         flex-direction: column;
         height: 100vh;
         width: 100vw;
@@ -567,81 +572,81 @@ canvas {
         justify-content: space-between;
     }
 
-    /* 1. Next Queue at Top */
-    .top-panel {
-        order: 1;
-        width: 100%;
-    }
-    
-    .top-panel .ui-box {
-        padding: 5px;
-        width: 100%;
-    }
+    /* Top: Next Queue */
+    .mobile-top { order: 1; width: 100%; }
+    .mobile-top .ui-box { padding: 5px; width: 100%; }
+    #canvas-next-mobile { width: 100%; height: 60px; display: block; margin: 0 auto; }
 
-    /* Force the vertical canvas to look horizontal on mobile */
-    #canvas-next {
-        width: 100% !important;
-        height: 50px !important;
-        object-fit: contain;
-    }
-
-    /* 2. Game Board in Middle (Scaled Down to make room for D-Pad) */
-    .center-panel {
+    /* Middle: Game Board */
+    .mobile-center {
         order: 2;
         flex-grow: 1;
         display: flex;
         justify-content: center;
         align-items: center;
     }
-
-    #canvas-board {
-        width: 180px !important;  /* Smaller to fit screen */
-        height: 360px !important; /* Smaller to fit screen */
-        border-width: 2px;
+    #canvas-board-mobile {
+        width: 240px;
+        height: 480px;
+        border: 2px solid var(--accent-color);
+        box-shadow: 0 0 15px var(--accent-color);
+        background: rgba(0,0,0,0.2);
     }
 
-    /* 3. D-Pad below Board */
-    .mobile-dpad {
+    /* Bottom Row Layout */
+    .mobile-bottom-row {
         order: 3;
-        padding: 5px 10px;
-        display: flex !important; /* Force flex if not hidden */
-    }
-
-    .mobile-dpad.hidden {
-        display: none !important;
-    }
-
-    .dpad-btn {
-        width: 45px;  /* Smaller buttons to save space */
-        height: 45px;
-        font-size: 1.1rem;
-    }
-    
-    .dpad-btn.action-btn {
-        width: 55px;
-        height: 55px;
-    }
-
-    /* 4. Hold & Power side-by-side at Bottom */
-    .bottom-panel {
-        order: 4;
-        flex-direction: row !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         width: 100%;
-        justify-content: space-around;
-        padding-bottom: 10px;
+        padding: 5px 0;
     }
 
-    .bottom-panel .ui-box {
-        width: 45%;
+    /* D-Pad Groups (Left and Right) */
+    .dpad-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+    .dpad-group.directional {
+        gap: 5px;
+    }
+    .dpad-row { display: flex; gap: 8px; }
+
+    /* Center Stack (Power & Hold) */
+    .center-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+    }
+    .center-stack .small-box {
         padding: 5px;
+        width: 90px;
     }
+    .center-stack .small-box h3 { font-size: 0.6rem; margin-bottom: 5px; }
+    #canvas-hold-mobile { width: 80px; height: 80px; display: block; margin: 0 auto; }
+    .power-bar { height: 12px; }
 
-    #canvas-hold {
-        width: 60px !important;
-        height: 60px !important;
+    /* D-Pad Buttons */
+    .dpad-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        border: 2px solid var(--border-color);
+        background: var(--btn-bg);
+        color: var(--text-color);
+        font-size: 1.2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        touch-action: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
     }
-    
-    .power-bar {
-        height: 15px;
-    }
+    .dpad-btn:active { transform: scale(0.9); background: var(--accent-color); color: var(--bg-color); }
+    .dpad-btn.action-btn { width: 50px; height: 50px; font-size: 1.4rem; border-color: var(--accent-secondary); }
 }
