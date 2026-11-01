@@ -26,6 +26,21 @@ window.updateScoreUI = function(score, level, lines) {
     }
 };
 
+window.updatePowerMeterUI = function(percent, isPowerMode) {
+    const fill = document.getElementById('power-fill');
+    if (!fill) return;
+    
+    fill.style.width = percent + '%';
+    
+    if (isPowerMode) {
+        fill.className = 'power-fill power-flashing';
+    } else if (percent >= 50) {
+        fill.className = 'power-fill power-green';
+    } else {
+        fill.className = 'power-fill power-red';
+    }
+};
+
 // --- STATE MANAGEMENT ---
 const gameState = {
     currentScreen: 'menu',

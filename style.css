@@ -409,3 +409,75 @@ canvas {
 /* ========================================== */
 /* END OF NEW CODE                            */
 /* ========================================== */
+
+
+/* ========================================== */
+/* START OF NEW CODE: Power Meter & Mobile    */
+/* ========================================== */
+
+/* Power Meter Colors */
+.power-fill {
+    height: 100%;
+    transition: width 0.2s ease-out, background-color 0.2s;
+    border-radius: 4px;
+}
+
+.power-red { background-color: #ff4444; }
+.power-green { background-color: #44ff44; }
+
+.power-flashing {
+    background-color: #44ff44;
+    animation: flashGreen 0.4s infinite alternate;
+}
+
+@keyframes flashGreen {
+    0% { opacity: 1; box-shadow: 0 0 10px #44ff44; }
+    100% { opacity: 0.4; box-shadow: 0 0 2px #44ff44; }
+}
+
+/* Mobile Layout (600px and below) */
+@media (max-width: 600px) {
+    .game-ui {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .side-panel {
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-around;
+        padding: 5px;
+    }
+    
+    .ui-box {
+        margin: 0 5px;
+        padding: 5px;
+    }
+
+    /* Force Next Canvas to be wide and short on mobile */
+    #canvas-next {
+        width: 280px !important;
+        height: 60px !important;
+        border: 1px solid var(--accent-color);
+        border-radius: 8px;
+    }
+
+    /* Keep Power Meter wide at the bottom */
+    #power-meter-container {
+        width: 90%;
+        margin-top: 10px;
+    }
+    
+    .power-bar {
+        width: 100%;
+        height: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid var(--accent-color);
+    }
+}
+/* ========================================== */
+/* END OF NEW CODE                            */
+/* ========================================== */

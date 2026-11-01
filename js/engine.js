@@ -41,6 +41,10 @@ let animationState = {
     timer: 0
 };
 
+// --- POWER METER STATE ---
+let powerMeter = 0; // 0 to 100
+let isPowerMode = false;
+
 // --- CANVAS SETUP ---
 const canvas = document.getElementById('canvas-board');
 const ctx = canvas.getContext('2d');
@@ -150,7 +154,17 @@ function triggerLineClearAnimation(lines, clearedRows) {
     score += points;
     linesCleared += lines;
     
-    level = Math.floor(linesCleared / 10) + 1;
+    // --- POWER METER FILL LOGIC ---
+    let fillAmount = [0, 10, 20, 30, 50][lines];
+    powerMeter += fillAmount;
+    
+    if (powerMeter >= 100) {
+        powerMeter = 100;
+        isPowerMode = true;
+        level = 1; // Reset to Zero Speed-Up
+    } else {
+        level = Math.floor(linesCleared / 10) + 1;
+    }
     dropInterval = Math.max(100, 1000 - (level - 1) * 100);
 
     animationState = {
@@ -253,8 +267,10 @@ function drawMatrix(matrix, offset, context, colorOverride = null, alpha = 1.0) 
             if (value !== 0) {
                 context.fillStyle = colorOverride || (typeof value === 'string' ? value : COLORS[value]);
                 context.fillRect(x + offset.x, y + offset.y, 1, 1);
-                context.strokeStyle = 'rgba(0,0,0,0.3)';
-                context.lineWidth = 0.05;
+                
+                // White Borders (Thin)
+                context.strokeStyle = '#ffffff'; 
+                context.lineWidth = 0.04; 
                 context.strokeRect(x + offset.x, y + offset.y, 1, 1);
             }
         });
@@ -307,9 +323,26 @@ function drawSidePanels() {
         drawMatrix(holdPiece.shape, { x: 1, y: 1 }, ctxHold, holdPiece.color);
     }
 
-    nextQueue.forEach((id, index) => {
-        drawMatrix(SHAPES[id], { x: 1, y: 1 + (index * 4) }, ctxNext, COLORS[id]);
-    });
+    // Check if mobile (600px or less)
+    const isMobile = window.innerWidth <= 600;
+    
+    // Reset transform before drawing Next queue
+    ctxNext.setTransform(1, 0, 0, 1, 0, 0);
+    ctxNext.clearRect(0, 0, canvasNext.width, canvasNext.height);
+
+    if (isMobile) {
+        // Draw Horizontally with smaller blocks
+        ctxNext.scale(12, 12); 
+        nextQueue.forEach((id, index) => {
+            drawMatrix(SHAPES[id], { x: 1 + (index * 3.5), y: 1 }, ctxNext, COLORS[id]);
+        });
+    } else {
+        // Draw Vertically (Standard)
+        ctxNext.scale(20, 20);
+        nextQueue.forEach((id, index) => {
+            drawMatrix(SHAPES[id], { x: 1, y: 1 + (index * 4) }, ctxNext, COLORS[id]);
+        });
+    }
 }
 
 function draw() {
@@ -344,14 +377,31 @@ function update(time = 0) {
 
     if (animationState.active) {
         animationState.timer += deltaTime;
-        if (animationState.timer > 250) { // 0.25 seconds flash
+        if (animationState.timer > 250) { 
             animationState.active = false;
         }
     } else {
+        // --- POWER METER DRAIN & SPEED LOGIC ---
+        if (isPowerMode) {
+            powerMeter -= deltaTime / 1000; // Drain 1% per second
+            if (powerMeter <= 0) {
+                powerMeter = 0;
+                isPowerMode = false;
+            }
+            dropInterval = 1000; // Force Zero Speed-Up (Level 1)
+        } else {
+            dropInterval = Math.max(100, 1000 - (level - 1) * 100);
+        }
+
         dropCounter += deltaTime;
         if (dropCounter > dropInterval) {
             playerSoftDrop();
         }
+    }
+
+    // Update Power Meter UI
+    if (typeof window.updatePowerMeterUI === 'function') {
+        window.updatePowerMeterUI(powerMeter, isPowerMode);
     }
 
     draw();
