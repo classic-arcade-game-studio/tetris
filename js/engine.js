@@ -59,13 +59,19 @@ const ctxNext = canvasNext.getContext('2d');
 ctxNext.scale(20, 20);
 
 // --- MOBILE CANVAS SETUP ---
+// 1. ADD THESE TWO LINES FOR THE MAIN MOBILE BOARD:
+const canvasMobile = document.getElementById('canvas-board-mobile');
+const ctxMobile = canvasMobile ? canvasMobile.getContext('2d') : null;
+if (ctxMobile) ctxMobile.scale(24, 24); // 240px width / 10 cols = 24
+
+// 2. KEEP YOUR EXISTING CODE BELOW:
 const canvasNextMobile = document.getElementById('canvas-next-mobile');
 const ctxNextMobile = canvasNextMobile ? canvasNextMobile.getContext('2d') : null;
-if (ctxNextMobile) ctxNextMobile.scale(10, 10); // Scale for 280x60 canvas
+if (ctxNextMobile) ctxNextMobile.scale(10, 10); 
 
 const canvasHoldMobile = document.getElementById('canvas-hold-mobile');
 const ctxHoldMobile = canvasHoldMobile ? canvasHoldMobile.getContext('2d') : null;
-if (ctxHoldMobile) ctxHoldMobile.scale(15, 15); // Scale for 80x80 canvas
+if (ctxHoldMobile) ctxHoldMobile.scale(15, 15); 
 
 // --- FUNCTIONS ---
 
@@ -287,7 +293,7 @@ function drawMatrix(matrix, offset, context, colorOverride = null, alpha = 1.0) 
     context.globalAlpha = 1.0;
 }
 
-function drawGhost() {
+function drawGhost(context = ctx) {
     if (!currentPiece || animationState.active) return;
     
     let ghostY = currentPiece.y;
@@ -295,21 +301,20 @@ function drawGhost() {
         ghostY++;
     }
 
-    // Draw only the chunky white outlines
-    ctx.save();
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 0.06; // This creates a 2px thick line on our scaled canvas
-    ctx.globalAlpha = 0.8;
+    context.save();
+    context.strokeStyle = '#ffffff';
+    context.lineWidth = 0.06; 
+    context.globalAlpha = 0.8;
 
     currentPiece.shape.forEach((row, y) => {
         row.forEach((value, x) => {
             if (value !== 0) {
-                ctx.strokeRect(x + currentPiece.x, y + ghostY, 1, 1);
+                context.strokeRect(x + currentPiece.x, y + ghostY, 1, 1);
             }
         });
     });
 
-    ctx.restore();
+    context.restore();
 }
 
 function collideAt(board, shape, x, y) {
@@ -357,25 +362,34 @@ function drawSidePanels() {
 }
 
 function draw() {
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.restore();
+    // 1. Determine if we are on mobile
+    const isMobile = window.innerWidth <= 650;
+    const activeCanvas = isMobile ? canvasMobile : canvas;
+    const activeCtx = isMobile ? ctxMobile : ctx;
 
-    drawMatrix(board, { x: 0, y: 0 }, ctx);
-    drawGhost();
+    if (!activeCtx) return;
+
+    // 2. Clear the active canvas
+    activeCtx.save();
+    activeCtx.setTransform(1, 0, 0, 1, 0, 0);
+    activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+    activeCtx.restore();
+
+    // 3. Draw to the active canvas
+    drawMatrix(board, { x: 0, y: 0 }, activeCtx);
+    drawGhost(activeCtx);
     
     if (currentPiece) {
-        drawMatrix(currentPiece.shape, { x: currentPiece.x, y: currentPiece.y }, ctx, currentPiece.color);
+        drawMatrix(currentPiece.shape, { x: currentPiece.x, y: currentPiece.y }, activeCtx, currentPiece.color);
     }
 
-    // Flash effect for cleared lines (0.25 seconds)
+    // 4. Flash effect for cleared lines
     if (animationState.active) {
         animationState.lines.forEach(y => {
-            ctx.globalAlpha = 0.8;
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, y, COLS, 1);
-            ctx.globalAlpha = 1.0;
+            activeCtx.globalAlpha = 0.8;
+            activeCtx.fillStyle = '#ffffff';
+            activeCtx.fillRect(0, y, COLS, 1);
+            activeCtx.globalAlpha = 1.0;
         });
     }
 }
