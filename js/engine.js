@@ -1,11 +1,10 @@
 // --- CONSTANTS ---
 const COLS = 10;
 const ROWS = 20;
-const BLOCK_SIZE = 30; // Size of each block in pixels
+const BLOCK_SIZE = 30;
 
-// --- TETROMINO SHAPES & COLORS ---
 const SHAPES = [
-    [], // Empty
+    [], 
     [[0,0,0,0], [1,1,1,1], [0,0,0,0], [0,0,0,0]], // I
     [[2,0,0], [2,2,2], [0,0,0]],                 // J
     [[0,0,3], [3,3,3], [0,0,0]],                 // L
@@ -16,41 +15,70 @@ const SHAPES = [
 ];
 
 const COLORS = [
-    null,
-    '#00f0f0', // I - Cyan
-    '#0000f0', // J - Blue
-    '#f0a000', // L - Orange
-    '#f0f000', // O - Yellow
-    '#00f000', // S - Green
-    '#a000f0', // T - Purple
-    '#f00000'  // Z - Red
+    null, '#00f0f0', '#0000f0', '#f0a000', '#f0f000', '#00f000', '#a000f0', '#f00000'
 ];
+
+const LINE_SCORES = [0, 100, 300, 500, 800];
 
 // --- GAME STATE ---
 let board = [];
 let currentPiece = null;
+let nextQueue = [];
+let holdPiece = null;
+let canHold = true;
+let bag = [];
 let dropCounter = 0;
-let dropInterval = 1000; // Drops every 1 second
+let dropInterval = 1000;
 let lastTime = 0;
 let isGameRunning = false;
+let score = 0;
+let linesCleared = 0;
+let level = 1;
+let animationState = {
+    active: false,
+    lines: [],
+    points: 0,
+    timer: 0
+};
 
 // --- CANVAS SETUP ---
 const canvas = document.getElementById('canvas-board');
 const ctx = canvas.getContext('2d');
-// Scale the canvas context so we can draw using grid coordinates (0-9, 0-19)
 ctx.scale(BLOCK_SIZE, BLOCK_SIZE);
+
+const canvasHold = document.getElementById('canvas-hold');
+const ctxHold = canvasHold.getContext('2d');
+ctxHold.scale(20, 20);
+
+const canvasNext = document.getElementById('canvas-next');
+const ctxNext = canvasNext.getContext('2d');
+ctxNext.scale(20, 20);
 
 // --- FUNCTIONS ---
 
 function createBoard() {
-    // Creates a 20x10 grid filled with 0s
     board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 }
 
+function fillBag() {
+    bag = [1, 2, 3, 4, 5, 6, 7];
+    for (let i = bag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bag[i], bag[j]] = [bag[j], bag[i]];
+    }
+}
+
+function getNextPieceId() {
+    if (bag.length === 0) fillBag();
+    return bag.pop();
+}
+
 function spawnPiece() {
-    const typeId = Math.floor(Math.random() * 7) + 1;
-    const shape = SHAPES[typeId];
-    const color = COLORS[typeId];
+    const nextId = nextQueue.shift();
+    nextQueue.push(getNextPieceId());
+
+    const shape = SHAPES[nextId];
+    const color = COLORS[nextId];
     
     currentPiece = {
         shape: shape,
@@ -59,10 +87,13 @@ function spawnPiece() {
         y: 0
     };
 
-    // If it spawns and immediately collides, game over (reset for now)
     if (collide(board, currentPiece)) {
-        createBoard();
+        triggerGameOver();
+        return;
     }
+    
+    canHold = true;
+    drawSidePanels();
 }
 
 function collide(board, piece) {
@@ -89,95 +120,75 @@ function merge(board, piece) {
     });
 }
 
-function pieceDrop() {
-    currentPiece.y++;
-    if (collide(board, currentPiece)) {
-        currentPiece.y--; // Move back up
-        merge(board, currentPiece); // Lock it into the board
-        spawnPiece(); // Get a new piece
-    }
-    dropCounter = 0; // Reset timer
-}
+function clearLines() {
+    let lines = 0;
+    let clearedRows = [];
 
-function drawMatrix(matrix, offset) {
-    matrix.forEach((row, y) => {
-        row.forEach((value, x) => {
-            if (value !== 0) {
-                // This line fixes the invisible block bug!
-                // It checks if the value is a color string, otherwise it looks up the color by number.
-                ctx.fillStyle = typeof value === 'string' ? value : COLORS[value];
-                
-                ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
-                
-                // Draw a slight border to make blocks look distinct
-                ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-                ctx.lineWidth = 0.05;
-                ctx.strokeRect(x + offset.x, y + offset.y, 1, 1);
+    outer: for (let y = ROWS - 1; y >= 0; --y) {
+        for (let x = 0; x < COLS; ++x) {
+            if (board[y][x] === 0) {
+                continue outer;
             }
-        });
-    });
-}
+        }
+        clearedRows.push(y);
+        lines++;
+    }
 
-function draw() {
-    // 1. Clear the screen
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.restore();
-
-    // 2. SANITY CHECK: Draw a giant red square
-    console.log("Drawing frame! If you see this, the game loop is running.");
-    ctx.fillStyle = 'red';
-    ctx.fillRect(0, 0, 5, 5); // This should draw a 150x150 pixel red block in the top-left
-
-    // 3. Draw the game
-    drawMatrix(board, { x: 0, y: 0 });
-    if (currentPiece) {
-        drawMatrix(currentPiece.shape, { x: currentPiece.x, y: currentPiece.y });
+    if (lines > 0) {
+        triggerLineClearAnimation(lines, clearedRows);
+        
+        const newBoard = board.filter((row, index) => !clearedRows.includes(index));
+        while (newBoard.length < ROWS) {
+            newBoard.unshift(Array(COLS).fill(0));
+        }
+        board = newBoard;
     }
 }
 
-function update(time = 0) {
-    if (!isGameRunning) return;
+function triggerLineClearAnimation(lines, clearedRows) {
+    const points = LINE_SCORES[lines] * level;
+    score += points;
+    linesCleared += lines;
+    
+    level = Math.floor(linesCleared / 10) + 1;
+    dropInterval = Math.max(100, 1000 - (level - 1) * 100);
 
-    const deltaTime = time - lastTime;
-    lastTime = time;
+    animationState = {
+        active: true,
+        lines: clearedRows,
+        points: points,
+        timer: 0,
+        intensity: lines
+    };
 
-    dropCounter += deltaTime;
-    if (dropCounter > dropInterval) {
-        pieceDrop();
+    if (typeof window.updateScoreUI === 'function') {
+        window.updateScoreUI(score, level, lines);
     }
-
-    draw();
-    requestAnimationFrame(update);
 }
 
-// --- MOVEMENT FUNCTIONS ---
+// --- MOVEMENT & ACTIONS ---
 
 function move(dir) {
+    if (animationState.active || !isGameRunning) return;
     currentPiece.x += dir;
-    // If we hit a wall or another block, move back
     if (collide(board, currentPiece)) {
         currentPiece.x -= dir;
     }
 }
 
 function rotate() {
-    // Save the original position and shape just in case
+    if (animationState.active || !isGameRunning) return;
     const pos = currentPiece.x;
     let offset = 1;
     const originalShape = currentPiece.shape;
     
-    // Rotate the matrix (Transpose and reverse)
     currentPiece.shape = currentPiece.shape[0].map((val, index) =>
         currentPiece.shape.map(row => row[index]).reverse()
     );
 
-    // "Wall Kick" logic: If rotation hits a wall, nudge it left/right until it fits
     while (collide(board, currentPiece)) {
         currentPiece.x += offset;
         offset = -(offset + (offset > 0 ? 1 : -1));
-        // If we nudged it too far, revert the rotation
         if (offset > currentPiece.shape[0].length) {
             currentPiece.shape = originalShape;
             currentPiece.x = pos;
@@ -187,33 +198,196 @@ function rotate() {
 }
 
 function playerSoftDrop() {
+    if (animationState.active || !isGameRunning) return;
     currentPiece.y++;
     if (collide(board, currentPiece)) {
         currentPiece.y--;
         merge(board, currentPiece);
+        clearLines();
         spawnPiece();
     }
-    dropCounter = 0; // Reset the auto-drop timer
+    dropCounter = 0;
 }
 
 function playerHardDrop() {
-    // Drop until collision
+    if (animationState.active || !isGameRunning) return;
     while (!collide(board, currentPiece)) {
         currentPiece.y++;
     }
-    // Move back up one step and lock
     currentPiece.y--;
     merge(board, currentPiece);
+    
+    // Play Hard Drop Sound
+    if (typeof window.playHardDrop === 'function') window.playHardDrop();
+    
+    clearLines();
     spawnPiece();
     dropCounter = 0;
 }
 
+function hold() {
+    if (!canHold || animationState.active || !isGameRunning) return;
+
+    if (holdPiece) {
+        const temp = holdPiece;
+        holdPiece = { shape: currentPiece.shape, color: currentPiece.color };
+        currentPiece = { shape: temp.shape, color: temp.color, x: 3, y: 0 };
+    } else {
+        holdPiece = { shape: currentPiece.shape, color: currentPiece.color };
+        spawnPiece();
+    }
+
+    // Play Hold Sound
+    if (typeof window.playHold === 'function') window.playHold();
+
+    canHold = false;
+    drawSidePanels();
+}
+
+// --- DRAWING ---
+
+function drawMatrix(matrix, offset, context, colorOverride = null, alpha = 1.0) {
+    context.globalAlpha = alpha;
+    matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value !== 0) {
+                context.fillStyle = colorOverride || (typeof value === 'string' ? value : COLORS[value]);
+                context.fillRect(x + offset.x, y + offset.y, 1, 1);
+                context.strokeStyle = 'rgba(0,0,0,0.3)';
+                context.lineWidth = 0.05;
+                context.strokeRect(x + offset.x, y + offset.y, 1, 1);
+            }
+        });
+    });
+    context.globalAlpha = 1.0;
+}
+
+function drawGhost() {
+    if (!currentPiece || animationState.active) return;
+    
+    let ghostY = currentPiece.y;
+    while (!collideAt(board, currentPiece.shape, currentPiece.x, ghostY + 1)) {
+        ghostY++;
+    }
+
+    // Draw only the chunky white outlines
+    ctx.save();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 0.06; // This creates a 2px thick line on our scaled canvas
+    ctx.globalAlpha = 0.8;
+
+    currentPiece.shape.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value !== 0) {
+                ctx.strokeRect(x + currentPiece.x, y + ghostY, 1, 1);
+            }
+        });
+    });
+
+    ctx.restore();
+}
+
+function collideAt(board, shape, x, y) {
+    for (let r = 0; r < shape.length; ++r) {
+        for (let c = 0; c < shape[r].length; ++c) {
+            if (shape[r][c] !== 0 &&
+               (board[y + r] && board[y + r][x + c]) !== 0) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function drawSidePanels() {
+    ctxHold.clearRect(0, 0, canvasHold.width, canvasHold.height);
+    ctxNext.clearRect(0, 0, canvasNext.width, canvasNext.height);
+
+    if (holdPiece) {
+        drawMatrix(holdPiece.shape, { x: 1, y: 1 }, ctxHold, holdPiece.color);
+    }
+
+    nextQueue.forEach((id, index) => {
+        drawMatrix(SHAPES[id], { x: 1, y: 1 + (index * 4) }, ctxNext, COLORS[id]);
+    });
+}
+
+function draw() {
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+
+    drawMatrix(board, { x: 0, y: 0 }, ctx);
+    drawGhost();
+    
+    if (currentPiece) {
+        drawMatrix(currentPiece.shape, { x: currentPiece.x, y: currentPiece.y }, ctx, currentPiece.color);
+    }
+
+    // Flash effect for cleared lines (0.25 seconds)
+    if (animationState.active) {
+        animationState.lines.forEach(y => {
+            ctx.globalAlpha = 0.8;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, y, COLS, 1);
+            ctx.globalAlpha = 1.0;
+        });
+    }
+}
+
+function update(time = 0) {
+    if (!isGameRunning) return;
+
+    const deltaTime = time - lastTime;
+    lastTime = time;
+
+    if (animationState.active) {
+        animationState.timer += deltaTime;
+        if (animationState.timer > 250) { // 0.25 seconds flash
+            animationState.active = false;
+        }
+    } else {
+        dropCounter += deltaTime;
+        if (dropCounter > dropInterval) {
+            playerSoftDrop();
+        }
+    }
+
+    draw();
+    requestAnimationFrame(update);
+}
+
+// --- GAME OVER ---
+
+function triggerGameOver() {
+    isGameRunning = false;
+    if (typeof window.showGameOverScreen === 'function') {
+        window.showGameOverScreen(score);
+    }
+}
+
 // --- PUBLIC START FUNCTION ---
-// This allows main.js to start the game when the user clicks "Start Game"
 window.startGameEngine = function() {
     createBoard();
+    for(let i=0; i<4; i++) nextQueue.push(getNextPieceId());
+    
+    score = 0;
+    linesCleared = 0;
+    level = 1;
+    dropInterval = 1000;
+    holdPiece = null;
+    animationState = { active: false, lines: [], points: 0, timer: 0 };
+    
     spawnPiece();
     isGameRunning = true;
     lastTime = 0;
     update();
 };
+
+// Expose functions for mobile controls
+window.mobileMove = move;
+window.mobileRotate = rotate;
+window.mobileSoftDrop = playerSoftDrop;
+window.mobileHardDrop = playerHardDrop;
+window.mobileHold = hold;

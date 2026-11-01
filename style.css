@@ -229,3 +229,183 @@ canvas {
     .side-panel { flex-direction: row; width: 100%; justify-content: space-around; }
     #canvas-board { width: 250px; height: 500px; }
 }
+
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.overlay.hidden {
+    display: none;
+}
+
+.game-over-box {
+    background: var(--panel-bg);
+    border: 3px solid var(--accent-color);
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    box-shadow: 0 0 40px var(--accent-color);
+    animation: popIn 0.3s ease-out;
+}
+
+.game-over-title {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--accent-secondary);
+    margin-bottom: 1rem;
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px var(--accent-secondary);
+}
+
+.final-score-label {
+    font-size: 1rem;
+    letter-spacing: 2px;
+    opacity: 0.7;
+    margin-bottom: 0.5rem;
+}
+
+.final-score-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--accent-color);
+    margin-bottom: 2rem;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.floating-points {
+    position: fixed; /* Changed to fixed so it's always on screen */
+    left: 50%;
+    top: 40%;
+    transform: translateX(-50%);
+    font-size: 4rem; /* Made bigger */
+    font-weight: 900;
+    color: #ffffff; /* White text */
+    text-shadow: 0 0 15px var(--accent-color), 0 0 5px #000; /* Glowing effect */
+    pointer-events: none;
+    animation: floatUp 1s ease-out forwards;
+    z-index: 1000; /* Highest priority so it's never hidden */
+}
+
+@keyframes floatUp {
+    0% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateX(-50%) translateY(-50px) scale(1.5); opacity: 0; }
+}
+
+
+/* Force all buttons in the Game Over box to stack vertically */
+.game-over-box .menu-btn {
+    display: block;
+    width: 100%;
+    margin-top: 15px;
+    box-sizing: border-box;
+}
+
+.menu-btn.secondary {
+    background: transparent;
+    border: 2px solid var(--accent-color);
+    color: var(--accent-color);
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.menu-btn.secondary:hover {
+    background: var(--accent-color);
+    color: #000;
+}
+
+.menu-btn.secondary:hover {
+    background: var(--accent-color);
+    color: #000;
+}
+
+/* ========================================== */
+/* START OF NEW CODE: Sound Settings Styles   */
+/* ========================================== */
+.settings-divider {
+    height: 2px;
+    background: var(--accent-color);
+    margin: 20px 0;
+    opacity: 0.3;
+}
+
+.settings-section-title {
+    font-size: 1.2rem;
+    color: var(--accent-secondary);
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+    text-align: center;
+}
+
+.radio-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.radio-group {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    justify-content: flex-end;
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.radio-group input[type="radio"] {
+    cursor: pointer;
+    accent-color: var(--accent-color);
+}
+/* ========================================== */
+/* END OF NEW CODE                            */
+/* ========================================== */
+
+/* ========================================== */
+/* START OF NEW CODE: Mobile Hold Cue         */
+/* ========================================== */
+.mobile-hold-cue {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 20px var(--accent-color);
+    pointer-events: none;
+    animation: holdPop 0.6s ease-out forwards;
+    z-index: 2000;
+}
+
+@keyframes holdPop {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    20% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+/* ========================================== */
+/* END OF NEW CODE                            */
+/* ========================================== */

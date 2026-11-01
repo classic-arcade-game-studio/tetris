@@ -25,9 +25,14 @@ document.addEventListener('keydown', event => {
             break;
         case 38: // Up Arrow (Rotate)
             rotate();
+            // Play Rotate Sound
+            if (typeof window.playRotate === 'function') window.playRotate();
             break;
         case 32: // Spacebar (Hard Drop)
             playerHardDrop();
+            break;
+        case 67: // 'C' key (Hold)
+            hold();
             break;
     }
 });

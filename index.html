@@ -53,12 +53,35 @@
                         <option value="dpad">On-Screen D-Pad</option>
                     </select>
                 </div>
+
+                <!-- SOUND SETTINGS SECTION -->
+                <div class="settings-divider"></div>
+                <h3 class="settings-section-title">SOUND</h3>
+                
+                <div class="setting-row">
+                    <span>Mute Sound</span>
+                    <input type="checkbox" id="toggle-mute">
+                </div>
+                
+                <div class="setting-row radio-row">
+                    <span>Sound Style</span>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="sound-style" value="modern" checked> Modern
+                        </label>
+                        <label>
+                            <input type="radio" name="sound-style" value="retro"> Retro
+                        </label>
+                    </div>
+                </div>
+                <!-- END SOUND SETTINGS -->
+
             </div>
             <button id="btn-back-settings" class="menu-btn">BACK</button>
         </div>
     </div>
 
-    <!-- GAME SCREEN (Hidden for now) -->
+    <!-- GAME SCREEN -->
     <div id="screen-game" class="screen">
         <div class="game-ui">
             <div class="side-panel left">
@@ -85,13 +108,24 @@
                 </div>
             </div>
         </div>
-        
-        <!-- We will add mobile D-Pad here in Step 3 if toggled -->
     </div>
 
-    <!-- Scripts -->
+    <!-- GAME OVER OVERLAY -->
+    <div id="game-over-overlay" class="overlay hidden">
+        <div class="game-over-box">
+            <h1 class="game-over-title">GAME OVER</h1>
+            <p class="final-score-label">FINAL SCORE</p>
+            <p class="final-score-value" id="final-score-display">0</p>
+            <button id="btn-restart" class="menu-btn primary">RESTART</button>
+            <button id="btn-main-menu" class="menu-btn secondary">MAIN MENU</button>
+        </div>
+    </div>
+
+    <!-- Scripts (Sound loaded first) -->
+    <script src="js/sound.js"></script>
     <script src="js/engine.js"></script>
     <script src="js/input.js"></script>
+    <script src="js/mobile.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
