@@ -333,12 +333,20 @@ function drawSidePanels() {
 }
 
 function draw() {
-    // SAFELY determine active canvas (falls back to desktop if mobile is missing)
     const isMobile = window.innerWidth <= 650;
+    
+    // DEBUG LOG: This will tell us exactly what the code is doing
+    if (isMobile) {
+        console.log("MOBILE DETECTED. canvasMobile exists:", !!canvasMobile);
+    }
+
     const activeCanvas = (isMobile && canvasMobile) ? canvasMobile : canvas;
     const activeCtx = (isMobile && ctxMobile) ? ctxMobile : ctx;
 
-    if (!activeCtx || !activeCanvas) return;
+    if (!activeCtx || !activeCanvas) {
+        console.error("CRITICAL: Failed to find active canvas!");
+        return;
+    }
 
     activeCtx.save();
     activeCtx.setTransform(1, 0, 0, 1, 0, 0);
