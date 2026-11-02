@@ -319,13 +319,38 @@ function drawSidePanels() {
     if (ctxHoldMobile) {
         ctxHoldMobile.setTransform(1, 0, 0, 1, 0, 0);
         ctxHoldMobile.clearRect(0, 0, canvasHoldMobile.width, canvasHoldMobile.height);
-        ctxHoldMobile.scale(12, 12); // 60px / 12 = 5 units wide
+        
+        // Use scale 15 for a 4x4 logical grid (60px / 15 = 4)
+        ctxHoldMobile.scale(15, 15); 
         
         if (holdPiece) {
-            console.log("Drawing Hold Piece:", holdPiece.color); // Debug log
-            // Offset 0.5 centers a 4-wide piece in a 5-wide canvas (0.5 + 4 + 0.5 = 5)
-            drawMatrix(holdPiece.shape, { x: 0.5, y: 0.5 }, ctxHoldMobile, holdPiece.color);
+            const shape = holdPiece.shape;
+            // Calculate center offset dynamically
+            // Grid is 4 units wide. If piece is 3 wide, offset is 0.5. If 4 wide, offset is 0.
+            const offsetX = (4 - shape[0].length) / 2;
+            const offsetY = (4 - shape.length) / 2;
+            
+            drawMatrix(shape, { x: offsetX, y: offsetY }, ctxHoldMobile, holdPiece.color);
         }
+    }
+    
+    if (ctxNextMobile) {
+        ctxNextMobile.setTransform(1, 0, 0, 1, 0, 0);
+        ctxNextMobile.clearRect(0, 0, canvasNextMobile.width, canvasNextMobile.height);
+        
+        // Use scale 15. Canvas is 280x60. Logical size is ~18x4.
+        ctxNextMobile.scale(15, 15); 
+        
+        // Draw 4 pieces. 
+        // We place them at x = 1, 5, 9, 13. (Spacing of 4 units).
+        nextQueue.forEach((id, index) => {
+            const shape = SHAPES[id];
+            // Center vertically in the 4-unit high canvas
+            const offsetY = (4 - shape.length) / 2;
+            const xPos = 1 + (index * 4);
+            
+            drawMatrix(shape, { x: xPos, y: offsetY }, ctxNextMobile, COLORS[id]);
+        });
     }
 }
 
