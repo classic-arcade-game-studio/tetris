@@ -316,22 +316,16 @@ function drawSidePanels() {
     }
 
     // Mobile Canvases
-    if (ctxNextMobile) {
-        ctxNextMobile.setTransform(1, 0, 0, 1, 0, 0);
-        ctxNextMobile.clearRect(0, 0, canvasNextMobile.width, canvasNextMobile.height);
-        ctxNextMobile.scale(10, 10);
+    if (ctxHoldMobile) {
+        ctxHoldMobile.setTransform(1, 0, 0, 1, 0, 0);
+        ctxHoldMobile.clearRect(0, 0, canvasHoldMobile.width, canvasHoldMobile.height);
+        ctxHoldMobile.scale(12, 12); // 60px / 12 = 5 units wide
         
-        // --- CENTERING & SPACING LOGIC ---
-        // Canvas is 28 units wide (280px / 10 scale).
-        // We use a spacing of 5 units per piece (4 units wide + 1 unit gap).
-        // 4 pieces * 5 units = 20 units total width.
-        // Offset = (28 - 20) / 2 = 4 units.
-        const spacing = 5; 
-        const startX = 4; 
-        
-        nextQueue.forEach((id, index) => {
-            drawMatrix(SHAPES[id], { x: startX + (index * spacing), y: 1 }, ctxNextMobile, COLORS[id]);
-        });
+        if (holdPiece) {
+            console.log("Drawing Hold Piece:", holdPiece.color); // Debug log
+            // Offset 0.5 centers a 4-wide piece in a 5-wide canvas (0.5 + 4 + 0.5 = 5)
+            drawMatrix(holdPiece.shape, { x: 0.5, y: 0.5 }, ctxHoldMobile, holdPiece.color);
+        }
     }
 }
 

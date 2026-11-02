@@ -560,33 +560,32 @@ canvas {
 @media (max-width: 650px) {
     body { 
         overflow: hidden; 
-        /* 100dvh fixes the mobile URL bar cut-off issue! */
         height: 100dvh; 
         width: 100vw;
     }
 
-    /* Hide Desktop UI, Show Mobile UI */
     .game-ui { display: none !important; }
     .mobile-game-ui {
         display: flex !important;
         flex-direction: column;
-        height: 100%; /* Fills the 100dvh */
+        height: 100%;
         width: 100%;
         padding: 5px;
         box-sizing: border-box;
         gap: 5px;
     }
 
-    /* 1. Top: Next Queue (Shrunk to remove bottom margin) */
+    /* 1. Top: Next Queue (Slimmed to match board width) */
     .mobile-top { 
-        flex: 0 0 12%; /* Fixed 12% height */
+        flex: 0 0 12%; 
         width: 100%; 
         display: flex;
         justify-content: center;
     }
     .mobile-top .ui-box { 
         padding: 5px; 
-        width: 90%; /* Matches board width */
+        width: 100%;
+        max-width: 240px; /* MATCHES GAME BOARD WIDTH */
         height: 100%;
         display: flex;
         flex-direction: column;
@@ -600,10 +599,10 @@ canvas {
         display: block; 
     }
 
-    /* 2. Middle: Game Board (Flexible height, shrinks to fit) */
+    /* 2. Middle: Game Board */
     .mobile-center {
-        flex: 1 1 auto; /* Takes up all remaining space */
-        min-height: 0; /* Crucial for flex shrinking */
+        flex: 1 1 auto; 
+        min-height: 0; 
         display: flex;
         justify-content: center;
         align-items: center;
@@ -612,17 +611,17 @@ canvas {
     #canvas-board-mobile {
         height: 100%;
         width: auto;
-        max-width: 90%; /* Matches NEXT box width */
-        aspect-ratio: 1/2; /* Maintains Tetris shape */
+        max-width: 240px; /* FIXED MAX WIDTH */
+        aspect-ratio: 1/2; 
         border: 2px solid var(--accent-color);
         box-shadow: 0 0 15px var(--accent-color);
         background: rgba(0,0,0,0.2);
         object-fit: contain;
     }
 
-    /* 3. Bottom Row (Fixed small height) */
+    /* 3. Bottom Row */
     .mobile-bottom-row {
-        flex: 0 0 18%; /* Fixed 18% height */
+        flex: 0 0 18%; 
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -630,7 +629,15 @@ canvas {
         padding: 5px 0;
     }
 
-    /* D-Pad Groups (Left and Right) */
+    /* FIX 1: Center the stack when D-Pad is hidden */
+    .mobile-bottom-row.swipe-mode {
+        justify-content: center; 
+    }
+    .mobile-bottom-row.swipe-mode .center-stack {
+        width: auto; /* Let it shrink to content */
+        max-width: 120px;
+    }
+
     .dpad-group {
         display: flex;
         flex-direction: column;
@@ -639,7 +646,6 @@ canvas {
         width: 30%;
     }
     
-    /* HIDE D-PAD when swipe mode is active */
     .mobile-bottom-row.swipe-mode .dpad-group {
         display: none !important;
     }
@@ -654,29 +660,29 @@ canvas {
         align-items: center;
         width: 30%;
     }
+    
+    /* FIX 2: Smaller Hold Box */
     .center-stack .small-box {
         padding: 2px;
-        width: 100%;
+        width: 80px; /* Reduced from 100% */
     }
     .center-stack .small-box h3 { font-size: 0.6rem; margin-bottom: 2px; }
-    #canvas-hold-mobile { width: 100%; height: auto; aspect-ratio: 1/1; display: block; }
+    
+    #canvas-hold-mobile { 
+        width: 100%; 
+        height: auto; 
+        aspect-ratio: 1/1; 
+        display: block; 
+    }
     .power-bar { height: 10px; }
 
     /* D-Pad Buttons */
     .dpad-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        border: 2px solid var(--border-color);
-        background: var(--btn-bg);
-        color: var(--text-color);
-        font-size: 1rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        touch-action: none;
-        user-select: none;
+        width: 40px; height: 40px; border-radius: 50%;
+        border: 2px solid var(--border-color); background: var(--btn-bg);
+        color: var(--text-color); font-size: 1rem;
+        display: flex; justify-content: center; align-items: center;
+        cursor: pointer; touch-action: none; user-select: none;
     }
     .dpad-btn:active { transform: scale(0.9); background: var(--accent-color); color: var(--bg-color); }
     .dpad-btn.action-btn { width: 45px; height: 45px; font-size: 1.2rem; border-color: var(--accent-secondary); }
