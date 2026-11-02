@@ -5,24 +5,24 @@ function updateDpadVisibility() {
     const controlType = document.getElementById('toggle-mobile-controls')?.value;
     const bottomRow = document.querySelector('.mobile-bottom-row');
     
+    console.log("Checking D-Pad setting. Value is:", controlType);
+
     if (!bottomRow) return;
 
     if (controlType === 'swipe') {
-        // Add class to hide D-PAD groups via CSS
         bottomRow.classList.add('swipe-mode');
-        console.log("Swipe Mode: D-PAD hidden.");
+        console.log("Swipe Mode Active: D-PAD Hidden.");
     } else {
-        // Remove class to show D-PAD groups
         bottomRow.classList.remove('swipe-mode');
-        console.log("D-Pad Mode: D-PAD visible.");
+        console.log("D-Pad Mode Active: D-PAD Visible.");
     }
 }
 
-// Call this when the page loads and whenever settings change
+// Run immediately when page loads
 document.addEventListener('DOMContentLoaded', () => {
     updateDpadVisibility();
     
-    // Listen for setting changes to toggle D-Pad
+    // Listen for setting changes to toggle D-Pad immediately
     const mobileControlSelect = document.getElementById('toggle-mobile-controls');
     if (mobileControlSelect) {
         mobileControlSelect.addEventListener('change', updateDpadVisibility);
@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // 2. D-PAD BUTTON EVENT LISTENERS
-// We use both touch and mouse events so it can be tested on desktop
 const dpadButtons = [
     { id: 'btn-m-up', action: 'mobileRotate' },
     { id: 'btn-m-left', action: 'mobileMove', param: -1 },
@@ -46,7 +45,7 @@ dpadButtons.forEach(btnConfig => {
     if (!btn) return;
 
     const triggerAction = (e) => {
-        e.preventDefault(); // Prevent zoom/scroll
+        e.preventDefault();
         if (typeof window[btnConfig.action] === 'function') {
             if (btnConfig.param !== undefined) {
                 window[btnConfig.action](btnConfig.param);
@@ -61,16 +60,16 @@ dpadButtons.forEach(btnConfig => {
 });
 
 
-// 3. SWIPE & LONG PRESS GESTURES (Existing Logic)
+// 3. SWIPE & LONG PRESS GESTURES
 let touchStartX = 0;
 let touchStartY = 0;
 let touchStartTime = 0;
 let longPressTimer = null;
 let isLongPress = false;
 
-const LONG_PRESS_DURATION = 500; // ms
-const TAP_DURATION = 200; // ms
-const SWIPE_THRESHOLD = 30; // px
+const LONG_PRESS_DURATION = 500;
+const TAP_DURATION = 200;
+const SWIPE_THRESHOLD = 30;
 
 document.addEventListener('touchstart', (e) => {
     const controlType = document.getElementById('toggle-mobile-controls')?.value;

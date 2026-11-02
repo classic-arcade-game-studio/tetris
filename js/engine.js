@@ -316,25 +316,21 @@ function drawSidePanels() {
     }
 
     // Mobile Canvases
-    if (ctxHoldMobile) {
-        ctxHoldMobile.setTransform(1, 0, 0, 1, 0, 0);
-        ctxHoldMobile.clearRect(0, 0, canvasHoldMobile.width, canvasHoldMobile.height);
-        ctxHoldMobile.scale(15, 15);
-        if (holdPiece) drawMatrix(holdPiece.shape, { x: 1, y: 1 }, ctxHoldMobile, holdPiece.color);
-    }
     if (ctxNextMobile) {
         ctxNextMobile.setTransform(1, 0, 0, 1, 0, 0);
         ctxNextMobile.clearRect(0, 0, canvasNextMobile.width, canvasNextMobile.height);
         ctxNextMobile.scale(10, 10);
         
-        // --- CENTERING LOGIC ---
+        // --- CENTERING & SPACING LOGIC ---
         // Canvas is 28 units wide (280px / 10 scale).
-        // We have 4 pieces, each spaced 4 units apart. Total width = 16 units.
-        // Offset = (28 - 16) / 2 = 6 units.
-        const startX = 6; 
+        // We use a spacing of 5 units per piece (4 units wide + 1 unit gap).
+        // 4 pieces * 5 units = 20 units total width.
+        // Offset = (28 - 20) / 2 = 4 units.
+        const spacing = 5; 
+        const startX = 4; 
         
         nextQueue.forEach((id, index) => {
-            drawMatrix(SHAPES[id], { x: startX + (index * 4), y: 1 }, ctxNextMobile, COLORS[id]);
+            drawMatrix(SHAPES[id], { x: startX + (index * spacing), y: 1 }, ctxNextMobile, COLORS[id]);
         });
     }
 }
